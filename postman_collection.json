@@ -1,0 +1,1530 @@
+{
+	"info": {
+		"_postman_id": "mcd-be-collection",
+		"name": "MCD Backend API",
+		"description": "Collection cho hệ thống quản lý lớp học online - Đã cập nhật: Xóa Register API, tất cả ID sử dụng UUID",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.accessToken) {",
+									"        pm.environment.set('access_token', jsonData.data.accessToken);",
+									"        if (jsonData.data.user && jsonData.data.user.id) {",
+									"            pm.environment.set('user_id', jsonData.data.user.id);",
+									"        }",
+									"    } else if (jsonData.accessToken) {",
+									"        pm.environment.set('access_token', jsonData.accessToken);",
+									"        if (jsonData.user && jsonData.user.id) {",
+									"            pm.environment.set('user_id', jsonData.user.id);",
+									"        }",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users?page=1&limit=10&role=USER&branchId={{branch_id}}&status=ACTIVE&keyword=Nguyễn",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"],
+							"query": [
+								{"key": "page", "value": "1"},
+								{"key": "limit", "value": "10"},
+								{"key": "role", "value": "USER", "disabled": true},
+								{"key": "branchId", "value": "{{branch_id}}", "disabled": true},
+								{"key": "status", "value": "ACTIVE", "disabled": true},
+								{"key": "keyword", "value": "Nguyễn", "disabled": true}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/statistics?branchId={{branch_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "statistics"],
+							"query": [
+								{"key": "branchId", "value": "{{branch_id}}", "disabled": true}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Users by Branch",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/branch/{{branch_id}}?page=1&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "branch", "{{branch_id}}"],
+							"query": [
+								{"key": "page", "value": "1"},
+								{"key": "limit", "value": "10"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get My Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/profile",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "profile"]
+						}
+					}
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{user_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Nguyễn Văn B\",\n  \"email\": \"user2@example.com\",\n  \"password\": \"123456\",\n  \"role\": \"TEACHER\",\n  \"branchId\": \"{{branch_id}}\",\n  \"status\": \"ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						}
+					}
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Nguyễn Văn B Updated\",\n  \"status\": \"INACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{user_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Toggle User Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/:id/toggle-status",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", ":id", "toggle-status"],
+							"variable": [
+								{"key": "id", "value": "{{user_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update User Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"BANNED\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/:id/status",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", ":id", "status"],
+							"variable": [
+								{"key": "id", "value": "{{user_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{user_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Branches",
+			"item": [
+				{
+					"name": "Get All Branches",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/branches",
+							"host": ["{{base_url}}"],
+							"path": ["api", "branches"]
+						}
+					}
+				},
+				{
+					"name": "Get Branch by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/branches/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "branches", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{branch_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Branch",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Chi nhánh Hà Nội\",\n  \"code\": \"HN001\",\n  \"address\": \"123 Đường ABC, Hà Nội\",\n  \"description\": \"Chi nhánh chính tại Hà Nội\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/branches",
+							"host": ["{{base_url}}"],
+							"path": ["api", "branches"]
+						}
+					}
+				},
+				{
+					"name": "Update Branch",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Chi nhánh Hà Nội Updated\",\n  \"address\": \"456 Đường XYZ, Hà Nội\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/branches/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "branches", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{branch_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Branch",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/branches/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "branches", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{branch_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Faculties",
+			"item": [
+				{
+					"name": "Get All Faculties",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/faculties?branchId={{branch_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "faculties"],
+							"query": [
+								{"key": "branchId", "value": "{{branch_id}}", "disabled": true}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Faculty by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/faculties/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "faculties", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{faculty_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Faculty",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Khoa Công nghệ Thông tin\",\n  \"code\": \"CNTT\",\n  \"branchId\": \"{{branch_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/faculties",
+							"host": ["{{base_url}}"],
+							"path": ["api", "faculties"]
+						}
+					}
+				},
+				{
+					"name": "Update Faculty",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Khoa Công nghệ Thông tin Updated\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/faculties/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "faculties", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{faculty_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Faculty",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/faculties/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "faculties", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{faculty_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Subjects",
+			"item": [
+				{
+					"name": "Get All Subjects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/subjects?facultyId={{faculty_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "subjects"],
+							"query": [
+								{"key": "facultyId", "value": "{{faculty_id}}", "disabled": true}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Subject by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/subjects/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "subjects", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{subject_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Subject",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Lập trình Web\",\n  \"code\": \"WEB001\",\n  \"facultyId\": \"{{faculty_id}}\",\n  \"description\": \"Môn học về lập trình web\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/subjects",
+							"host": ["{{base_url}}"],
+							"path": ["api", "subjects"]
+						}
+					}
+				},
+				{
+					"name": "Update Subject",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Lập trình Web Advanced\",\n  \"description\": \"Môn học nâng cao về lập trình web\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/subjects/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "subjects", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{subject_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Subject",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/subjects/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "subjects", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{subject_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Online Classes",
+			"item": [
+				{
+					"name": "Get All Classes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/online-classes?page=1&limit=10&branchId={{branch_id}}&teacherId={{user_id}}&subjectId={{subject_id}}&status=OPEN",
+							"host": ["{{base_url}}"],
+							"path": ["api", "online-classes"],
+							"query": [
+								{"key": "page", "value": "1"},
+								{"key": "limit", "value": "10"},
+								{"key": "branchId", "value": "{{branch_id}}", "disabled": true},
+								{"key": "teacherId", "value": "{{user_id}}", "disabled": true},
+								{"key": "subjectId", "value": "{{subject_id}}", "disabled": true},
+								{"key": "status", "value": "OPEN", "disabled": true}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Class by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/online-classes/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "online-classes", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{class_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Class Members",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/online-classes/:id/members",
+							"host": ["{{base_url}}"],
+							"path": ["api", "online-classes", ":id", "members"],
+							"variable": [
+								{"key": "id", "value": "{{class_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Class",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Lớp Lập trình Web 2024\",\n  \"code\": \"WEB2024\",\n  \"teacherId\": \"{{user_id}}\",\n  \"subjectId\": \"{{subject_id}}\",\n  \"branchId\": \"{{branch_id}}\",\n  \"startDate\": \"2024-01-01T00:00:00Z\",\n  \"endDate\": \"2024-12-31T23:59:59Z\",\n  \"maxStudent\": 50,\n  \"description\": \"Lớp học lập trình web năm 2024\",\n  \"status\": \"OPEN\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/online-classes",
+							"host": ["{{base_url}}"],
+							"path": ["api", "online-classes"]
+						}
+					}
+				},
+				{
+					"name": "Update Class",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Lớp Lập trình Web 2024 Updated\",\n  \"maxStudent\": 60,\n  \"status\": \"IN_PROGRESS\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/online-classes/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "online-classes", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{class_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Approve Member",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/online-classes/:id/members/:memberId/approve",
+							"host": ["{{base_url}}"],
+							"path": ["api", "online-classes", ":id", "members", ":memberId", "approve"],
+							"variable": [
+								{"key": "id", "value": "{{class_id}}"},
+								{"key": "memberId", "value": "{{user_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Reject Member",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/online-classes/:id/members/:memberId/reject",
+							"host": ["{{base_url}}"],
+							"path": ["api", "online-classes", ":id", "members", ":memberId", "reject"],
+							"variable": [
+								{"key": "id", "value": "{{class_id}}"},
+								{"key": "memberId", "value": "{{user_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Class",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/online-classes/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "online-classes", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{class_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Class Members",
+			"item": [
+				{
+					"name": "Join Class",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/class-members/join/:classId",
+							"host": ["{{base_url}}"],
+							"path": ["api", "class-members", "join", ":classId"],
+							"variable": [
+								{"key": "classId", "value": "{{class_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get My Classes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/class-members/my-classes",
+							"host": ["{{base_url}}"],
+							"path": ["api", "class-members", "my-classes"]
+						}
+					}
+				},
+				{
+					"name": "Leave Class",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/class-members/leave/:classId",
+							"host": ["{{base_url}}"],
+							"path": ["api", "class-members", "leave", ":classId"],
+							"variable": [
+								{"key": "classId", "value": "{{class_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Lessons",
+			"item": [
+				{
+					"name": "Get Lessons by Class",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/lessons/class/:classId",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lessons", "class", ":classId"],
+							"variable": [
+								{"key": "classId", "value": "{{class_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Lesson by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/lessons/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lessons", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{lesson_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Lesson",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"onlineClassId\": \"{{class_id}}\",\n  \"title\": \"Bài 1: Giới thiệu HTML\",\n  \"content\": \"Nội dung bài học về HTML cơ bản...\",\n  \"type\": \"TEXT\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/lessons",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lessons"]
+						}
+					}
+				},
+				{
+					"name": "Update Lesson",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Bài 1: Giới thiệu HTML Updated\",\n  \"content\": \"Nội dung đã được cập nhật...\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/lessons/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lessons", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{lesson_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Lesson",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/lessons/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lessons", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{lesson_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "File Resources",
+			"item": [
+				{
+					"name": "Get All Files",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/file-resources?onlineClassId={{class_id}}&lessonId={{lesson_id}}&uploaderId={{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "file-resources"],
+							"query": [
+								{"key": "onlineClassId", "value": "{{class_id}}", "disabled": true},
+								{"key": "lessonId", "value": "{{lesson_id}}", "disabled": true},
+								{"key": "uploaderId", "value": "{{user_id}}", "disabled": true}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get File by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/file-resources/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "file-resources", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{file_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create File Resource",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"onlineClassId\": \"{{class_id}}\",\n  \"lessonId\": null,\n  \"fileName\": \"bai-giang-1.pdf\",\n  \"fileUrl\": \"https://example.com/files/bai-giang-1.pdf\",\n  \"fileType\": \"application/pdf\",\n  \"description\": \"Tài liệu bài giảng số 1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/file-resources",
+							"host": ["{{base_url}}"],
+							"path": ["api", "file-resources"]
+						}
+					}
+				},
+				{
+					"name": "Delete File Resource",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/file-resources/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "file-resources", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{file_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Posts",
+			"item": [
+				{
+					"name": "Get All Posts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts?onlineClassId={{class_id}}&type=ANNOUNCEMENT",
+							"host": ["{{base_url}}"],
+							"path": ["api", "posts"],
+							"query": [
+								{"key": "onlineClassId", "value": "{{class_id}}", "disabled": true},
+								{"key": "type", "value": "ANNOUNCEMENT", "disabled": true}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Post by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "posts", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{post_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Post",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"onlineClassId\": \"{{class_id}}\",\n  \"content\": \"Thông báo: Lớp học sẽ bắt đầu vào tuần tới\",\n  \"type\": \"ANNOUNCEMENT\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts",
+							"host": ["{{base_url}}"],
+							"path": ["api", "posts"]
+						}
+					}
+				},
+				{
+					"name": "Update Post",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Thông báo đã được cập nhật: Lớp học sẽ bắt đầu vào tuần sau\",\n  \"type\": \"ANNOUNCEMENT\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "posts", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{post_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Post",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "posts", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{post_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "Get Comments by Post",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/comments/post/:postId",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments", "post", ":postId"],
+							"variable": [
+								{"key": "postId", "value": "{{post_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Comment by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/comments/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{comment_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"postId\": \"{{post_id}}\",\n  \"content\": \"Cảm ơn thầy/cô đã thông báo!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/comments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments"]
+						}
+					}
+				},
+				{
+					"name": "Update Comment",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Cảm ơn thầy/cô đã thông báo! Đã cập nhật.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/comments/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{comment_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Comment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/comments/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{comment_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Reactions",
+			"item": [
+				{
+					"name": "Toggle Reaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"postId\": \"{{post_id}}\",\n  \"type\": \"LIKE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reactions/toggle",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reactions", "toggle"]
+						}
+					}
+				},
+				{
+					"name": "Get Reactions by Post",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/reactions/post/:postId",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reactions", "post", ":postId"],
+							"variable": [
+								{"key": "postId", "value": "{{post_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Remove Reaction",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/reactions/post/:postId",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reactions", "post", ":postId"],
+							"variable": [
+								{"key": "postId", "value": "{{post_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Teacher Calendar",
+			"item": [
+				{
+					"name": "Get All Calendars",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/teacher-calendars?teacherId={{user_id}}&startDate=2024-01-01&endDate=2024-12-31",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teacher-calendars"],
+							"query": [
+								{"key": "teacherId", "value": "{{user_id}}", "disabled": true},
+								{"key": "startDate", "value": "2024-01-01", "disabled": true},
+								{"key": "endDate", "value": "2024-12-31", "disabled": true}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Calendar by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/teacher-calendars/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teacher-calendars", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{calendar_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Calendar Event",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"teacherId\": \"{{user_id}}\",\n  \"title\": \"Lịch dạy lớp Web 2024\",\n  \"description\": \"Lịch dạy buổi đầu tiên\",\n  \"startTime\": \"2024-01-15T08:00:00Z\",\n  \"endTime\": \"2024-01-15T10:00:00Z\",\n  \"onlineClassId\": \"{{class_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/teacher-calendars",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teacher-calendars"]
+						}
+					}
+				},
+				{
+					"name": "Update Calendar Event",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Lịch dạy lớp Web 2024 Updated\",\n  \"startTime\": \"2024-01-15T09:00:00Z\",\n  \"endTime\": \"2024-01-15T11:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/teacher-calendars/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teacher-calendars", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{calendar_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Calendar Event",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/teacher-calendars/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teacher-calendars", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{calendar_id}}"}
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000"
+		}
+	]
+}

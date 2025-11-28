@@ -1,0 +1,294 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
+}
+
+enum ClassStatus {
+  OPEN
+  CLOSED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum ClassMemberStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LessonType {
+  VIDEO
+  TEXT
+  FILE
+  QUIZ
+}
+
+enum PostType {
+  ANNOUNCEMENT
+  DISCUSSION
+  ASSIGNMENT
+  GENERAL
+}
+
+enum ReactionType {
+  LIKE
+  HEART
+  THUMBS_UP
+  THUMBS_DOWN
+}
+
+model User {
+  id           String       @id @default(uuid())
+  fullName     String
+  email        String       @unique
+  passwordHash String       @map("password_hash")
+  role         Role         @default(USER)
+  branchId     String?
+  branch       Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  avatar       String?
+  status       UserStatus   @default(ACTIVE)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  taughtClasses      OnlineClass[]      @relation("TeacherClasses")
+  classMemberships   ClassMember[]
+  posts              Post[]
+  comments           Comment[]
+  reactions          Reaction[]
+  uploadedFiles      FileResource[]
+  calendarEvents     TeacherCalendar[]
+  teacherFaculties   TeacherFaculty[]
+  teacherSubjects    TeacherSubject[]
+  createdLessons     Lesson[]
+
+  @@map("users")
+}
+
+model Branch {
+  id          String   @id @default(uuid())
+  name        String
+  code        String    @unique
+  address     String?
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  users    User[]
+  faculties Faculty[]
+  classes  OnlineClass[]
+
+  @@map("branches")
+}
+
+model Faculty {
+  id        String   @id @default(uuid())
+  name      String
+  code      String
+  branchId  String?
+  branch    Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  subjects        Subject[]
+  teacherFaculties TeacherFaculty[]
+
+  @@map("faculties")
+}
+
+model Subject {
+  id          String    @id @default(uuid())
+  name        String
+  code        String
+  facultyId   String
+  faculty     Faculty   @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  classes         OnlineClass[]
+  teacherSubjects TeacherSubject[]
+
+  @@map("subjects")
+}
+
+model OnlineClass {
+  id          String          @id @default(uuid())
+  name        String
+  code        String          @unique
+  teacherId   String
+  teacher     User            @relation("TeacherClasses", fields: [teacherId], references: [id], onDelete: Cascade)
+  subjectId   String
+  subject     Subject         @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  branchId    String
+  branch      Branch          @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  status      ClassStatus     @default(OPEN)
+  startDate   DateTime        @map("start_date")
+  endDate     DateTime        @map("end_date")
+  maxStudent  Int             @default(50) @map("max_student")
+  description String?
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  // Relations
+  members ClassMember[]
+  lessons Lesson[]
+  posts   Post[]
+  files   FileResource[]
+  calendarEvents TeacherCalendar[]
+
+  @@map("online_classes")
+}
+
+model ClassMember {
+  id           String            @id @default(uuid())
+  userId       String            @map("user_id")
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  onlineClassId String           @map("online_class_id")
+  onlineClass  OnlineClass      @relation(fields: [onlineClassId], references: [id], onDelete: Cascade)
+  status       ClassMemberStatus  @default(PENDING)
+  joinedAt     DateTime           @default(now()) @map("joined_at")
+
+  @@unique([userId, onlineClassId])
+  @@map("class_members")
+}
+
+model Lesson {
+  id           String     @id @default(uuid())
+  onlineClassId String    @map("online_class_id")
+  onlineClass  OnlineClass @relation(fields: [onlineClassId], references: [id], onDelete: Cascade)
+  title        String
+  content      String
+  type         LessonType  @default(TEXT)
+  createdBy    String     @map("created_by")
+  creator      User       @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  files FileResource[]
+
+  @@map("lessons")
+}
+
+model FileResource {
+  id           String      @id @default(uuid())
+  uploaderId   String      @map("uploader_id")
+  uploader     User        @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  onlineClassId String?    @map("online_class_id")
+  onlineClass  OnlineClass? @relation(fields: [onlineClassId], references: [id], onDelete: Cascade)
+  lessonId     String?     @map("lesson_id")
+  lesson       Lesson?     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  fileName     String       @map("file_name")
+  fileUrl      String       @map("file_url")
+  fileType     String       @map("file_type")
+  description  String?
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  @@map("file_resources")
+}
+
+model Post {
+  id           String    @id @default(uuid())
+  authorId     String    @map("author_id")
+  author       User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  onlineClassId String?  @map("online_class_id")
+  onlineClass  OnlineClass? @relation(fields: [onlineClassId], references: [id], onDelete: Cascade)
+  content      String
+  type         PostType  @default(GENERAL)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  comments  Comment[]
+  reactions Reaction[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String   @map("author_id")
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("comments")
+}
+
+model Reaction {
+  id        String       @id @default(uuid())
+  postId    String       @map("post_id")
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String       @map("user_id")
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      ReactionType @default(LIKE)
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  @@unique([postId, userId])
+  @@map("reactions")
+}
+
+model TeacherCalendar {
+  id           String      @id @default(uuid())
+  teacherId    String      @map("teacher_id")
+  teacher      User        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  startTime    DateTime    @map("start_time")
+  endTime      DateTime    @map("end_time")
+  onlineClassId String?     @map("online_class_id")
+  onlineClass  OnlineClass? @relation(fields: [onlineClassId], references: [id], onDelete: SetNull)
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@map("teacher_calendars")
+}
+
+model TeacherFaculty {
+  id        String   @id @default(uuid())
+  teacherId String   @map("teacher_id")
+  teacher   User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  facultyId String   @map("faculty_id")
+  faculty   Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([teacherId, facultyId])
+  @@map("teacher_faculties")
+}
+
+model TeacherSubject {
+  id        String   @id @default(uuid())
+  teacherId String   @map("teacher_id")
+  teacher   User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subjectId String   @map("subject_id")
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([teacherId, subjectId])
+  @@map("teacher_subjects")
+}
